@@ -7,6 +7,7 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Mail, Lock, ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { SEO } from '@/components/SEO';
 
 type AuthStep = 'OPTIONS' | 'EMAIL_LOGIN' | 'OTP_VERIFY';
 
@@ -78,6 +79,10 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEO
+        title="Sign In | Daru Hunting"
+        description="Securely log in to track orders, view history, and manage your premium spirits collection."
+      />
       <Navbar />
 
       <main className="flex-1 flex items-center justify-center py-12 px-4 relative overflow-hidden">
