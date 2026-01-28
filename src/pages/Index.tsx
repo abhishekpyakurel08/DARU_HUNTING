@@ -58,6 +58,8 @@ const AnimatedProductCard = ({ product, index }: any) => {
         src={product.image}
         alt={product.name}
         loading="lazy"
+        width="400"
+        height="192"
         className="w-full h-48 object-cover"
       />
       <div className="p-4">
@@ -114,7 +116,7 @@ const Index = () => {
 
               {/* Hero Title */}
               <h1 className="hero-title text-foreground mb-6 text-4xl lg:text-5xl font-bold">
-                <AnimatedText text="Premium Spirits Hunted & Delivered To You" />
+                <AnimatedText text="Order Premium Spirits – Hunted & Delivered To You" />
               </h1>
 
               {/* Hero Subtitle */}
@@ -124,7 +126,7 @@ const Index = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.6 }}
               >
-                The hunt for perfection ends here. Discover elite whiskeys, wines, and local treasures from our curated cellar, delivered safely to Kathmandu's finest homes.
+                The hunt for elite alcohol products ends here. Discover whiskey, wine, and beer from our curated cellar, available for instant delivery in Kathmandu.
               </motion.p>
 
               {/* Buttons */}
@@ -178,7 +180,7 @@ const Index = () => {
             >
               <div className="relative rounded-3xl overflow-hidden shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=1000&h=800&fit=crop"
+                  src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=1000&h=800&fit=crop&fm=webp"
                   alt="Elite spirits selection"
                   className="w-full h-[450px] lg:h-[600px] object-cover"
                 />
