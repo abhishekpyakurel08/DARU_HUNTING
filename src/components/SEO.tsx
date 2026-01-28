@@ -1,98 +1,149 @@
 import { Helmet } from 'react-helmet-async';
+import { useLocation } from 'react-router-dom';
 
 interface SEOProps {
-    title?: string;
+    title: string;
     description?: string;
-    keywords?: string;
     image?: string;
+    type?: 'website' | 'article' | 'product';
+    date?: string;
+    author?: string;
+    keywords?: string;
     url?: string;
-    type?: string;
     schema?: any;
+    children?: React.ReactNode;
 }
 
-export const SEO = ({
-    title = "Daru Hunting | Premium Spirits & Adventure Delivered",
-    description = "Join the hunt for the finest international whiskeys, local spirits, and savory snacks. Daru Hunting delivers to your doorstep across Kathmandu in under 30 minutes.",
-    keywords = "liquor delivery Kathmandu, alcohol delivery Nepal, whiskey delivery, wine delivery, snacks delivery Kathmandu, Daru Hunting, local spirits Nepal",
-    image = "/logo.png",
-    url = "https://daruhunting.com.np",
-    type = "website",
+const DEFAULT_TITLE = 'Daru Hunting - Premium Liquor Delivery in Kathmandu';
+const DEFAULT_DESCRIPTION = 'Order premium liquor, wine, and beer online in Kathmandu. Fast delivery within 30 minutes. Best prices for genuine alcohol brands in Nepal.';
+const DEFAULT_IMAGE = '/og-image.jpg'; // We should ensure this file exists or provided
+const SITE_URL = 'https://daruhunting.com'; // Replace with actual domain
+const BRAND_NAME = 'Daru Hunting';
+
+export function SEO({
+    title,
+    description = DEFAULT_DESCRIPTION,
+    image = DEFAULT_IMAGE,
+    type = 'website',
+    date,
+    author,
+    keywords,
+    url,
     schema
-}: SEOProps) => {
-    const siteTitle = title.includes("Daru Hunting") ? title : `${title} | Daru Hunting`;
+}: SEOProps) {
+    const { pathname } = useLocation();
+    const cannonicalUrl = url || `${SITE_URL}${pathname}`;
+
+    // Construct full image URL if it's a relative path
+    const metaImage = image.startsWith('http') ? image : `${SITE_URL}${image}`;
+
+    // Structured Data (JSON-LD)
+    const schemaOrgJSONLD = [
+        {
+            '@context': 'http://schema.org',
+            '@type': 'WebSite',
+            url: SITE_URL,
+            name: BRAND_NAME,
+            alternateName: 'Daru Hunting Nepal',
+        },
+        {
+            '@context': 'http://schema.org',
+            '@type': 'Organization',
+            url: SITE_URL,
+            logo: `${SITE_URL}/logo.png`,
+            name: BRAND_NAME,
+            sameAs: [
+                'https://www.facebook.com/daruhunting',
+                'https://www.instagram.com/daruhunting'
+            ],
+            contactPoint: {
+                '@type': 'ContactPoint',
+                telephone: '+977-9800000000',
+                contactType: 'customer service',
+                areaServed: 'NP',
+                availableLanguage: ['en', 'ne']
+            }
+        },
+        // Local Business Schema for Kathmandu focus
+        {
+            '@context': 'http://schema.org',
+            '@type': 'LiquorStore',
+            name: BRAND_NAME,
+            image: metaImage,
+            '@id': SITE_URL,
+            url: SITE_URL,
+            telephone: '+977-9800000000',
+            address: {
+                '@type': 'PostalAddress',
+                streetAddress: 'Thamel', // Example address
+                addressLocality: 'Kathmandu',
+                addressRegion: 'Bagmati',
+                postalCode: '44600',
+                addressCountry: 'NP'
+            },
+            geo: {
+                '@type': 'GeoCoordinates',
+                latitude: 27.7172,
+                longitude: 85.3240
+            },
+            openingHoursSpecification: {
+                '@type': 'OpeningHoursSpecification',
+                dayOfWeek: [
+                    'Monday',
+                    'Tuesday',
+                    'Wednesday',
+                    'Thursday',
+                    'Friday',
+                    'Saturday',
+                    'Sunday'
+                ],
+                opens: '10:00',
+                closes: '22:00'
+            },
+            priceRange: '$$',
+            areaServed: 'Kathmandu'
+        },
+        ...(schema ? [schema] : [])
+    ];
 
     return (
         <Helmet>
             {/* Basic Meta Tags */}
-            <title>{siteTitle}</title>
+            <title>{title} | {BRAND_NAME}</title>
             <meta name="description" content={description} />
-            <meta name="keywords" content={keywords} />
-            <link rel="canonical" href={url} />
-            <html lang="en-NP" />
+            {keywords && <meta name="keywords" content={keywords} />}
+            <link rel="canonical" href={cannonicalUrl} />
+            <meta name="robots" content="index, follow" />
 
-            {/* Open Graph / Facebook */}
+            {/* Open Graph Tags */}
             <meta property="og:type" content={type} />
-            <meta property="og:url" content={url} />
-            <meta property="og:title" content={siteTitle} />
+            <meta property="og:title" content={title} />
             <meta property="og:description" content={description} />
-            <meta property="og:image" content={image} />
-            <meta property="og:site_name" content="Daru Hunting" />
-            <meta property="og:locale" content="en_NP" />
+            <meta property="og:image" content={metaImage} />
+            <meta property="og:url" content={cannonicalUrl} />
+            <meta property="og:site_name" content={BRAND_NAME} />
+            <meta property="og:locale" content="en_US" />
 
-            {/* Twitter */}
+            {/* Twitter Tags */}
             <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:url" content={url} />
-            <meta name="twitter:title" content={siteTitle} />
+            <meta name="twitter:title" content={title} />
             <meta name="twitter:description" content={description} />
-            <meta name="twitter:image" content={image} />
-            <meta name="twitter:site" content="@daruhunting" />
+            <meta name="twitter:image" content={metaImage} />
 
-            {/* Structured Data (JSON-LD) */}
-            {schema && (
-                <script type="application/ld+json">
-                    {JSON.stringify(schema)}
-                </script>
-            )}
+            {/* Geo Tags for Local SEO */}
+            <meta name="geo.region" content="NP-BA" />
+            <meta name="geo.placename" content="Kathmandu" />
+            <meta name="geo.position" content="27.7172;85.3240" />
+            <meta name="ICBM" content="27.7172, 85.3240" />
 
-            {/* Business Local Schema */}
+            {/* Standard Meta Tags */}
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <meta name="theme-color" content="#ffffff" />
+
+            {/* Structured Data */}
             <script type="application/ld+json">
-                {JSON.stringify({
-                    "@context": "https://schema.org",
-                    "@type": "LiquorStore",
-                    "name": "Daru Hunting",
-                    "image": "https://daruhunting.com.np/logo.png",
-                    "@id": "https://daruhunting.com.np",
-                    "url": "https://daruhunting.com.np",
-                    "telephone": "+977 9769919699",
-                    "priceRange": "$$",
-                    "address": {
-                        "@type": "PostalAddress",
-                        "streetAddress": "Thamel",
-                        "addressLocality": "Kathmandu",
-                        "postalCode": "44600",
-                        "addressCountry": "NP"
-                    },
-                    "geo": {
-                        "@type": "GeoCoordinates",
-                        "latitude": 27.7154,
-                        "longitude": 85.3123
-                    },
-                    "openingHoursSpecification": {
-                        "@type": "OpeningHoursSpecification",
-                        "dayOfWeek": [
-                            "Monday",
-                            "Tuesday",
-                            "Wednesday",
-                            "Thursday",
-                            "Friday",
-                            "Saturday",
-                            "Sunday"
-                        ],
-                        "opens": "09:00",
-                        "closes": "23:59"
-                    }
-                })}
+                {JSON.stringify(schemaOrgJSONLD)}
             </script>
         </Helmet>
     );
-};
+}
