@@ -167,4 +167,42 @@ export const vendorApi = {
     }
 };
 
+export interface ReviewData {
+    id?: string;
+    productId?: string;
+    userId?: string;
+    user?: {
+        name: string;
+        picture?: string;
+    };
+    rating: number;
+    title: string;
+    comment: string;
+    images?: string[];
+    helpfulCount?: number;
+    isVerifiedPurchase?: boolean;
+    createdAt?: string;
+}
+
+export const reviewsApi = {
+    getByProduct: async (productId: string, params?: any) => {
+        const res = await api.get(`/reviews/product/${productId}`, { params });
+        return res.data;
+    },
+    create: async (data: any) => {
+        const res = await api.post('/reviews', data);
+        return res.data;
+    },
+    createWithImages: async (formData: FormData) => {
+        const res = await api.post('/reviews/with-images', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return res.data;
+    },
+    markHelpful: async (reviewId: string, isHelpful: boolean) => {
+        const res = await api.post(`/reviews/${reviewId}/helpful`, { isHelpful });
+        return res.data;
+    }
+};
+
 export default api;
