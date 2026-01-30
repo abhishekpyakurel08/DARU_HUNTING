@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Check, Clock, Package, Eye, Truck } from 'lucide-react';
+import { Search, Check, Clock, Package, Eye, Truck, ArrowRight } from 'lucide-react';
 import { useAdminStore } from '@/stores/adminStore';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -107,25 +107,34 @@ export default function AdminOrders() {
                     <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)} className="rounded-lg h-8 text-xs">
                       <Eye className="w-3 h-3 mr-1" /> View
                     </Button>
+
+                    {/* Hand Cash Confirmation - High Priority */}
                     {(order.status === 'OUT_FOR_DELIVERY' || order.status === 'DELIVERED') && (
                       <Button
                         size="sm"
                         onClick={async () => {
                           try {
                             await confirmPayment(order._id);
-                            toast.success('Payment confirmed & Order completed');
+                            toast.success('Cash Confirmed: Order Completed');
                           } catch (e) {
-                            toast.error('Failed to confirm payment');
+                            toast.error('Confirmation failed');
                           }
                         }}
-                        className="bg-green-600 hover:bg-green-700 text-white rounded-lg h-8 text-xs font-bold shadow-md animate-pulse"
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg h-8 text-xs font-bold shadow-[0_0_15px_rgba(16,185,129,0.3)] animate-pulse"
                       >
                         <Check className="w-3 h-3 mr-1" /> Confirm Cash
                       </Button>
                     )}
+
+                    {/* Standard Flow Transitions */}
                     {nextStatus && order.status !== 'OUT_FOR_DELIVERY' && order.status !== 'DELIVERED' && (
-                      <Button size="sm" onClick={() => handleStatusChange(order._id, nextStatus)} className="btn-gradient-primary rounded-lg h-8 text-xs">
-                        <Check className="w-3 h-3 mr-1" /> {statusConfig[nextStatus].label}
+                      <Button
+                        size="sm"
+                        onClick={() => handleStatusChange(order._id, nextStatus)}
+                        className="btn-gradient-primary rounded-lg h-8 text-xs"
+                      >
+                        {statusConfig[nextStatus].label}
+                        <ArrowRight className="w-3 h-3 ml-1" />
                       </Button>
                     )}
                   </div>

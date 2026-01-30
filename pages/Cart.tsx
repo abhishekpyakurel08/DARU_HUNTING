@@ -31,7 +31,7 @@ const Cart = () => {
     setDeliveryCharge,
   } = useCartStore();
   const [step, setStep] = useState<'cart' | 'location' | 'payment' | 'confirm'>('cart');
-  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>('cod');
 
   // Auto-select location on mount if not set
   useEffect(() => {
@@ -39,8 +39,6 @@ const Cart = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          // Trigger reverse geocoding via LocationPicker logic indirectly or set simple coords
-          // We set coords, and LocationPicker will handle the address fetch when it mounts or we can do it here
           setDeliveryLocation({
             address: "Locating...",
             lat: latitude,
@@ -69,34 +67,28 @@ const Cart = () => {
     if (deliveryLocation?.lat && deliveryLocation?.lng) {
       const fetchEstimate = async () => {
         try {
-          const adminRes = await api.get('/admin/users');
-          const admin = adminRes.data.find((u: any) => u.role === 'admin');
+          // Centralized system handles vendor ID on backend
+          const res = await api.post('/orders/delivery-estimate', {
+            deliveryLocation
+          });
 
-          if (admin) {
-            const res = await api.post('/orders/delivery-estimate', {
-              vendorId: admin._id,
-              deliveryLocation
-            });
-
-            const subtotal = getTotal();
-            if (subtotal >= 2000) {
-              setDeliveryCharge(0);
-            } else {
-              setDeliveryCharge(res.data.deliveryCharge);
-            }
+          const subtotal = getTotal();
+          if (subtotal >= 2000) {
+            setDeliveryCharge(0);
           } else {
-            setDeliveryCharge(100);
+            setDeliveryCharge(res.data.deliveryCharge || 100);
           }
         } catch (e) {
           console.error("Failed to fetch delivery estimate", e);
-          setDeliveryCharge(150);
+          const subtotal = getTotal();
+          setDeliveryCharge(subtotal >= 2000 ? 0 : 150);
         }
       };
       fetchEstimate();
     } else {
       setDeliveryCharge(0);
     }
-  }, [deliveryLocation, setDeliveryCharge, items]); // Added items to recalculate if cart changes
+  }, [deliveryLocation, setDeliveryCharge, items]);
 
   // Check authentication when trying to access payment or confirm step
   useEffect(() => {
@@ -114,10 +106,10 @@ const Cart = () => {
       return;
     }
 
-    const order = await placeOrder();
+    const order = await placeOrder('cod');
     if (order) {
       toast.success('Orders placed successfully!', {
-        description: `Order confirmed via ${selectedPayment.toUpperCase()}`,
+        description: `Order confirmed via CASH ON DELIVERY`,
       });
       navigate('/orders');
     }
@@ -448,21 +440,13 @@ const Cart = () => {
                 <div>
                   <h3 className="font-semibold text-foreground mb-3">Payment Method</h3>
                   <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-xl">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${selectedPayment === 'esewa' ? 'bg-green-500' :
-                      selectedPayment === 'khalti' ? 'bg-purple-500' : 'bg-blue-500'
-                      }`}>
-                      <span className="text-white text-lg">
-                        {selectedPayment === 'esewa' ? '🟢' :
-                          selectedPayment === 'khalti' ? '🟣' : '💳'}
-                      </span>
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-600">
+                      <span className="text-white text-lg">💵</span>
                     </div>
                     <div>
-                      <p className="font-medium text-foreground capitalize">
-                        {selectedPayment === 'stripe' ? 'Card Payment' : selectedPayment}
-                      </p>
+                      <p className="font-medium text-foreground capitalize">Cash on Delivery</p>
                       <p className="text-sm text-muted-foreground">
-                        {selectedPayment === 'esewa' ? 'eSewa wallet' :
-                          selectedPayment === 'khalti' ? 'Khalti wallet' : 'Visa, Mastercard, etc.'}
+                        Pay exactly {formatNPR(getTotal() + deliveryCharge)} in cash
                       </p>
                     </div>
                   </div>
@@ -493,7 +477,7 @@ const Cart = () => {
                   onClick={handlePlaceOrder}
                   className="w-full btn-gradient-secondary h-14 rounded-xl text-lg"
                 >
-                  Pay {formatNPR(getTotal() + deliveryCharge)}
+                  Confirm Order ({formatNPR(getTotal() + deliveryCharge)})
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>

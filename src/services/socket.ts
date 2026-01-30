@@ -1,8 +1,7 @@
 /// <reference types="vite/client" />
-// Socket.IO Client for Real-time Updates
 import { io, Socket } from 'socket.io-client';
 
-const SOCKET_URL = import.meta.env.VITE_BACKEND_API_URL?.replace('/api', '') || 'http://localhost:5000';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
 
 let socket: Socket | null = null;
 

@@ -69,35 +69,29 @@ const Cart = () => {
     if (deliveryLocation?.lat && deliveryLocation?.lng) {
       const fetchEstimate = async () => {
         try {
-          const adminRes = await api.get('/admin/users');
-          const users = Array.isArray(adminRes.data) ? adminRes.data : (adminRes.data.users || []);
-          const admin = users.find((u: any) => u.role === 'admin');
+          // Centralized system now handles admin/vendor ID on backend
+          const res = await api.post('/orders/delivery-estimate', {
+            deliveryLocation
+          });
 
-          if (admin) {
-            const res = await api.post('/orders/delivery-estimate', {
-              vendorId: admin._id,
-              deliveryLocation
-            });
-
-            const subtotal = getTotal();
-            if (subtotal >= 2000) {
-              setDeliveryCharge(0);
-            } else {
-              setDeliveryCharge(res.data.deliveryCharge);
-            }
+          const subtotal = getTotal();
+          if (subtotal >= 2000) {
+            setDeliveryCharge(0);
           } else {
-            setDeliveryCharge(100);
+            setDeliveryCharge(res.data.deliveryCharge || 100);
           }
         } catch (e) {
           console.error("Failed to fetch delivery estimate", e);
-          setDeliveryCharge(150);
+          // Fallback logic
+          const subtotal = getTotal();
+          setDeliveryCharge(subtotal >= 2000 ? 0 : 150);
         }
       };
       fetchEstimate();
     } else {
       setDeliveryCharge(0);
     }
-  }, [deliveryLocation, setDeliveryCharge, items]); // Added items to recalculate if cart changes
+  }, [deliveryLocation, setDeliveryCharge, items]);
 
   // Check authentication when trying to access payment or confirm step
   useEffect(() => {
