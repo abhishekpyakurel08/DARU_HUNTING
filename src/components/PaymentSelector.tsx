@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, CreditCard, Smartphone, Wallet } from 'lucide-react';
 
-export type PaymentMethod = 'esewa' | 'khalti' | 'stripe';
+export type PaymentMethod = 'cod';
 
 interface PaymentSelectorProps {
   selectedMethod: PaymentMethod | null;
@@ -11,28 +11,12 @@ interface PaymentSelectorProps {
 
 const paymentMethods = [
   {
-    id: 'esewa' as PaymentMethod,
-    name: 'eSewa',
-    description: 'Pay with eSewa wallet',
-    icon: Smartphone,
-    color: 'bg-green-500',
-    logo: '🟢',
-  },
-  {
-    id: 'khalti' as PaymentMethod,
-    name: 'Khalti',
-    description: 'Pay with Khalti wallet',
+    id: 'cod' as PaymentMethod,
+    name: 'Cash on Delivery',
+    description: 'Pay when your order arrives',
     icon: Wallet,
-    color: 'bg-purple-500',
-    logo: '🟣',
-  },
-  {
-    id: 'stripe' as PaymentMethod,
-    name: 'Card Payment',
-    description: 'Visa, Mastercard, etc.',
-    icon: CreditCard,
-    color: 'bg-blue-500',
-    logo: '💳',
+    color: 'bg-blue-600',
+    logo: '💵',
   },
 ];
 
@@ -43,7 +27,7 @@ export function PaymentSelector({ selectedMethod, onSelectMethod }: PaymentSelec
       {paymentMethods.map((method, index) => {
         const isSelected = selectedMethod === method.id;
         const Icon = method.icon;
-        
+
         return (
           <motion.button
             key={method.id}
@@ -51,11 +35,10 @@ export function PaymentSelector({ selectedMethod, onSelectMethod }: PaymentSelec
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
             onClick={() => onSelectMethod(method.id)}
-            className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
-              isSelected
+            className={`w-full p-4 rounded-xl border-2 text-left transition-all ${isSelected
                 ? 'border-primary bg-primary/5'
                 : 'border-border hover:border-primary/50 bg-card'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-3">
               <div className={`w-12 h-12 rounded-xl ${method.color} flex items-center justify-center flex-shrink-0`}>

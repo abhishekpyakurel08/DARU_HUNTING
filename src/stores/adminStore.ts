@@ -39,6 +39,7 @@ interface AdminStore {
 
   // Order actions
   updateOrderStatus: (orderId: string, status: string) => Promise<void>;
+  confirmPayment: (orderId: string) => Promise<void>;
 
   // User actions
   updateUserRole: (userId: string, data: any) => Promise<void>;
@@ -116,6 +117,12 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
 
   updateOrderStatus: async (orderId, status) => {
     await api.put(`/orders/${orderId}/status`, { status });
+    get().fetchOrders();
+    get().fetchStats();
+  },
+
+  confirmPayment: async (orderId) => {
+    await api.post(`/payment/cod/${orderId}/confirm`);
     get().fetchOrders();
     get().fetchStats();
   },

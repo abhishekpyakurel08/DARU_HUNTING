@@ -31,7 +31,7 @@ const Cart = () => {
     setDeliveryCharge,
   } = useCartStore();
   const [step, setStep] = useState<'cart' | 'location' | 'payment' | 'confirm'>('cart');
-  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod | null>('cod');
 
   // Auto-select location on mount if not set
   useEffect(() => {
@@ -449,21 +449,13 @@ const Cart = () => {
                 <div>
                   <h3 className="font-semibold text-foreground mb-3">Payment Method</h3>
                   <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-xl">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${selectedPayment === 'esewa' ? 'bg-green-500' :
-                      selectedPayment === 'khalti' ? 'bg-purple-500' : 'bg-blue-500'
-                      }`}>
-                      <span className="text-white text-lg">
-                        {selectedPayment === 'esewa' ? '🟢' :
-                          selectedPayment === 'khalti' ? '🟣' : '💳'}
-                      </span>
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-600">
+                      <span className="text-white text-lg">💵</span>
                     </div>
                     <div>
-                      <p className="font-medium text-foreground capitalize">
-                        {selectedPayment === 'stripe' ? 'Card Payment' : selectedPayment}
-                      </p>
+                      <p className="font-medium text-foreground capitalize">Cash on Delivery</p>
                       <p className="text-sm text-muted-foreground">
-                        {selectedPayment === 'esewa' ? 'eSewa wallet' :
-                          selectedPayment === 'khalti' ? 'Khalti wallet' : 'Visa, Mastercard, etc.'}
+                        Pay exactly {formatNPR(getTotal() + deliveryCharge)} in cash
                       </p>
                     </div>
                   </div>
@@ -494,7 +486,7 @@ const Cart = () => {
                   onClick={handlePlaceOrder}
                   className="w-full btn-gradient-secondary h-14 rounded-xl text-lg"
                 >
-                  Pay {formatNPR(getTotal() + deliveryCharge)}
+                  Confirm Order ({formatNPR(getTotal() + deliveryCharge)})
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>

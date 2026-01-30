@@ -18,7 +18,7 @@ const statusConfig: any = {
 const statusFlow = ['CREATED', 'CONFIRMED', 'OUT_FOR_DELIVERY', 'DELIVERED', 'COMPLETED', 'CANCELLED'];
 
 export default function AdminOrders() {
-  const { orders, fetchOrders, updateOrderStatus } = useAdminStore();
+  const { orders, fetchOrders, updateOrderStatus, confirmPayment } = useAdminStore();
   const [search, setSearch] = useState('');
   const [statusFilter] = useState<string | 'ALL'>('ALL');
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
@@ -107,7 +107,23 @@ export default function AdminOrders() {
                     <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)} className="rounded-lg h-8 text-xs">
                       <Eye className="w-3 h-3 mr-1" /> View
                     </Button>
-                    {nextStatus && (
+                    {(order.status === 'OUT_FOR_DELIVERY' || order.status === 'DELIVERED') && (
+                      <Button
+                        size="sm"
+                        onClick={async () => {
+                          try {
+                            await confirmPayment(order._id);
+                            toast.success('Payment confirmed & Order completed');
+                          } catch (e) {
+                            toast.error('Failed to confirm payment');
+                          }
+                        }}
+                        className="bg-green-600 hover:bg-green-700 text-white rounded-lg h-8 text-xs font-bold shadow-md animate-pulse"
+                      >
+                        <Check className="w-3 h-3 mr-1" /> Confirm Cash
+                      </Button>
+                    )}
+                    {nextStatus && order.status !== 'OUT_FOR_DELIVERY' && order.status !== 'DELIVERED' && (
                       <Button size="sm" onClick={() => handleStatusChange(order._id, nextStatus)} className="btn-gradient-primary rounded-lg h-8 text-xs">
                         <Check className="w-3 h-3 mr-1" /> {statusConfig[nextStatus].label}
                       </Button>
