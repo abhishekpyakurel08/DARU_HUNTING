@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import api from '@/services/api';
 
 export interface Product {
   _id?: string;
@@ -111,7 +112,7 @@ export const useCartStore = create<CartStore>()(
         if (items.length === 0 || !deliveryLocation) return null;
 
         try {
-          const { default: api } = await import('@/services/api');
+
 
           const orderPayload = {
             items: items.map(item => ({

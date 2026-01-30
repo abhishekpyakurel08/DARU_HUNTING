@@ -5,7 +5,7 @@ import { useAdminStore } from '@/stores/adminStore';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { categories } from '@/data/mockData';
+import { categories } from '@/lib/constants';
 import { formatNPR } from '@/lib/currency';
 
 export default function AdminProducts() {

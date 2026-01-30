@@ -5,7 +5,7 @@ import { Search, PackageOpen } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { ProductCard } from '@/components/ProductCard';
-import { categories } from '@/data/mockData';
+import { categories } from '@/lib/constants';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
 import { ProductGridSkeleton } from '@/components/ProductSkeleton';

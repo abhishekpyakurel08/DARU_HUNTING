@@ -1,49 +1,89 @@
 import { SEO } from '@/components/SEO';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Suspense, lazy } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Plus, Minus, ShoppingBag, Package, Clock, MapPin, Star, Share2, Truck } from 'lucide-react';
+import { ArrowLeft, Plus, Minus, ShoppingBag, Package, Truck, MapPin, Star, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
-import { products } from '@/data/mockData';
 import { useCartStore } from '@/stores/cartStore';
 import { formatNPR } from '@/lib/currency';
 import { toast } from 'sonner';
 import { ReviewSection } from '@/components/ReviewSection';
 import { useQuery } from '@tanstack/react-query';
-import api from '@/services/api';
-
-// Lazy load ProductReviews for better performance
-const ProductReviews = lazy(() => import('@/components/ProductReviews'));
+import api, { productsApi } from '@/services/api';
+import { Loader2 } from 'lucide-react';
 
 export default function ProductDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { items, addItem, updateQuantity } = useCartStore();
 
+  // Fetch Product Details
+  const { data: rawProduct, isLoading: productLoading } = useQuery({
+    queryKey: ['product', id],
+    queryFn: async () => {
+      if (!id) throw new Error('No ID');
+      try {
+        return await productsApi.getOne(id);
+      } catch (e) {
+        // Fallback: Try to find in all products if getOne fails (some backends might not have getOne implemented perfectly yet)
+        const all = await productsApi.getAll();
+        return all.find((p: any) => p._id === id || p.id === id);
+      }
+    },
+    enabled: !!id
+  });
+
+  // Normalize product data
+  const product = rawProduct ? {
+    ...rawProduct,
+    id: rawProduct._id || rawProduct.id,
+    stock: rawProduct.stock || 0
+  } : null;
+
+  // Fetch Reviews
   const { data: reviews = [] } = useQuery({
     queryKey: ['reviews', id],
     queryFn: async () => {
-      const res = await api.get(`/reviews/${id}`);
-      return res.data;
-    }
+      if (!id) return [];
+      try {
+        const res = await api.get(`/reviews/product/${id}`);
+        return res.data || [];
+      } catch (e) {
+        return [];
+      }
+    },
+    enabled: !!id
   });
 
-  const product = products.find((p) => p.id === id);
-  const cartItem = items.find((item) => item.product.id === id);
+  // Fetch All Products for Related Items (Simple implementation)
+  const { data: allProducts = [] } = useQuery({
+    queryKey: ['products'],
+    queryFn: productsApi.getAll,
+    enabled: !!product
+  });
+
+  const relatedProducts = allProducts
+    .filter((p: any) => p.category === product?.category && (p._id !== product.id && p.id !== product.id))
+    .slice(0, 4)
+    .map((p: any) => ({ ...p, id: p._id || p.id }));
+
+  const cartItem = items.find((item) => item.product.id === id || item.product._id === id);
   const quantity = cartItem?.quantity || 0;
 
   const averageRating = reviews.length > 0
     ? (reviews.reduce((acc: any, r: any) => acc + r.rating, 0) / reviews.length).toFixed(1)
-    : "4.8";
+    : (product?.averageRating || "4.8");
 
-  const totalReviews = reviews.length > 0 ? reviews.length : 120;
+  const totalReviews = reviews.length > 0 ? reviews.length : (product?.reviews?.length || 0);
 
-  // Get related products (same category, excluding current)
-  const relatedProducts = products
-    .filter((p) => p.category === product?.category && p.id !== id)
-    .slice(0, 4);
+  if (productLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-12 h-12 text-primary animate-spin" />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -84,7 +124,7 @@ export default function ProductDetails() {
     }
   };
 
-  const productSchema = product ? {
+  const productSchema = {
     "@context": "https://schema.org/",
     "@type": "Product",
     "name": product.name,
@@ -96,13 +136,13 @@ export default function ProductDetails() {
     },
     "offers": {
       "@type": "Offer",
-      "url": `https://spiritliquor.com.np/product/${product.id}`,
+      "url": window.location.href,
       "priceCurrency": "NPR",
       "price": product.price,
       "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       "itemCondition": "https://schema.org/NewCondition"
     }
-  } : null;
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -110,7 +150,7 @@ export default function ProductDetails() {
         title={`${product.name} | Premium Spirits`}
         description={`Get ${product.name} delivered across Kathmandu in 30 minutes. ${product.description}`}
         image={product.image}
-        url={`https://spiritliquor.com.np/product/${product.id}`}
+        url={window.location.href}
         type="product"
         schema={productSchema}
       />
@@ -300,7 +340,7 @@ export default function ProductDetails() {
               </motion.div>
 
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {relatedProducts.map((relatedProduct, index) => (
+                {relatedProducts.map((relatedProduct: any, index: number) => (
                   <motion.div
                     key={relatedProduct.id}
                     initial={{ opacity: 0, y: 20 }}
