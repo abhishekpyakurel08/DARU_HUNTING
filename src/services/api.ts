@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://selfdrop-backend.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://web-hunting.tecobit.cloud/api';
 
 const api = axios.create({
     baseURL: API_URL,
