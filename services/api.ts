@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://selfdrop-backend.onrender.com/api';
+const API_URL = process.env.VITE_SOCKET_URL;
 
 const api = axios.create({
     baseURL: API_URL,
