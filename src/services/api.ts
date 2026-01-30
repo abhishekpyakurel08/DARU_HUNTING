@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://selfdrop-backend.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://selfdrop-backend.onrender.com/api';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -31,7 +31,7 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
         // Mock Mode Fallback for Admin/Vendor Routes
-        if (originalRequest.url?.includes('/admin/') || originalRequest.url?.includes('/products') || originalRequest.url?.includes('/vendor/')) {
+        if (originalRequest.url?.includes('/admin/') || originalRequest.url?.includes('/products') || originalRequest.url?.includes('/vendor/') || originalRequest.url?.includes('/orders')) {
             console.warn(`[MockMode] API failed for ${originalRequest.url}, falling back to mock data.`);
             const { MOCK_STATS, MOCK_USERS, MOCK_ORDERS, MOCK_PRODUCTS, MOCK_EXPENSES, MOCK_USER_ORDERS } = await import('./mockData');
 
@@ -73,6 +73,29 @@ api.interceptors.response.use(
             if (originalRequest.url.includes('/products')) return { data: MOCK_PRODUCTS, status: 200 };
             if (originalRequest.url.includes('/expenses')) return { data: MOCK_EXPENSES, status: 200 };
             if (originalRequest.url.includes('/orders') && originalRequest.url.includes('/users')) return { data: MOCK_USER_ORDERS, status: 200 };
+
+            // Mock Order Creation
+            if (originalRequest.url.includes('/orders') && originalRequest.method === 'post') {
+                const reqData = typeof originalRequest.data === 'string' ? JSON.parse(originalRequest.data) : originalRequest.data;
+                const orderId = `ord_${Date.now()}`;
+                return {
+                    data: {
+                        id: orderId,
+                        _id: orderId,
+                        items: reqData.items || [],
+                        total: 2500, // Mock total
+                        status: 'CREATED',
+                        createdAt: new Date().toISOString(),
+                        orderType: 'DELIVERY',
+                        deliveryLocation: reqData.deliveryLocation || { address: 'Mock Address', lat: 27.7172, lng: 85.3240 },
+                        payment: {
+                            method: reqData.paymentMethod || 'CASH',
+                            status: 'PENDING'
+                        }
+                    },
+                    status: 200
+                };
+            }
 
             // For write operations, simulate success
             if (['post', 'put', 'delete'].includes(originalRequest.method)) {

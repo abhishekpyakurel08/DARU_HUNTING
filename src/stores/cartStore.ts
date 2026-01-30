@@ -42,7 +42,7 @@ interface CartStore {
   setDeliveryCharge: (charge: number) => void;
   getTotal: () => number;
   getItemCount: () => number;
-  placeOrder: () => Promise<Order | null>;
+  placeOrder: (paymentMethod: string) => Promise<Order | null>;
   cancelOrder: (orderId: string) => void;
 }
 
@@ -106,7 +106,7 @@ export const useCartStore = create<CartStore>()(
         return get().items.reduce((count, item) => count + item.quantity, 0);
       },
 
-      placeOrder: async () => {
+      placeOrder: async (paymentMethod: string) => {
         const { items, deliveryLocation } = get();
         if (items.length === 0 || !deliveryLocation) return null;
 
@@ -119,6 +119,7 @@ export const useCartStore = create<CartStore>()(
               quantity: item.quantity
             })),
             deliveryLocation,
+            paymentMethod,
           };
 
           const response = await api.post('/orders', orderPayload);

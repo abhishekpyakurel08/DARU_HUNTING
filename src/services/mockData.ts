@@ -48,6 +48,7 @@ export const MOCK_USERS = [
 export const MOCK_ORDERS = [
     {
         _id: 'ord1',
+        id: 'ord1',
         user: { name: 'Customer 1' },
         total: 2850,
         status: 'COMPLETED',
@@ -57,6 +58,7 @@ export const MOCK_ORDERS = [
     },
     {
         _id: 'ord2',
+        id: 'ord2',
         user: { name: 'Customer 2' },
         total: 1450,
         status: 'CONFIRMED',
@@ -67,10 +69,10 @@ export const MOCK_ORDERS = [
 ];
 
 export const MOCK_PRODUCTS = [
-    { _id: 'p1', name: 'Old Durbar Black Chimney', price: 2850, category: 'Whiskey', stock: 45, approved: true, image: '', description: 'Premium Whiskey' },
-    { _id: 'p2', name: 'Signature Premier Whiskey', price: 2100, category: 'Whiskey', stock: 3, approved: true, image: '', description: 'Smooth Whiskey' },
-    { _id: 'p3', name: 'Khukuri XXX Rum', price: 1450, category: 'Rum', stock: 55, approved: true, image: '', description: 'Traditional Rum' },
-    { _id: 'p4', name: 'Sula Vineyards Red', price: 1800, category: 'Wine', stock: 5, approved: true, image: '', description: 'Fine Red Wine' }
+    { _id: 'p1', id: 'p1', name: 'Old Durbar Black Chimney', price: 2850, category: 'Whiskey', stock: 45, approved: true, image: '', description: 'Premium Whiskey' },
+    { _id: 'p2', id: 'p2', name: 'Signature Premier Whiskey', price: 2100, category: 'Whiskey', stock: 3, approved: true, image: '', description: 'Smooth Whiskey' },
+    { _id: 'p3', id: 'p3', name: 'Khukuri XXX Rum', price: 1450, category: 'Rum', stock: 55, approved: true, image: '', description: 'Traditional Rum' },
+    { _id: 'p4', id: 'p4', name: 'Sula Vineyards Red', price: 1800, category: 'Wine', stock: 5, approved: true, image: '', description: 'Fine Red Wine' }
 ];
 
 export const MOCK_EXPENSES = [
@@ -82,6 +84,7 @@ export const MOCK_EXPENSES = [
 export const MOCK_USER_ORDERS = [
     {
         _id: 'ord1',
+        id: 'ord1',
         total: 2850,
         status: 'COMPLETED',
         createdAt: new Date().toISOString(),
@@ -89,6 +92,7 @@ export const MOCK_USER_ORDERS = [
     },
     {
         _id: 'ord3',
+        id: 'ord3',
         total: 5000,
         status: 'CANCELLED',
         createdAt: new Date(Date.now() - 100000000).toISOString(),

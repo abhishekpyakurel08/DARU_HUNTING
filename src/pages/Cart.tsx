@@ -70,7 +70,8 @@ const Cart = () => {
       const fetchEstimate = async () => {
         try {
           const adminRes = await api.get('/admin/users');
-          const admin = adminRes.data.find((u: any) => u.role === 'admin');
+          const users = Array.isArray(adminRes.data) ? adminRes.data : (adminRes.data.users || []);
+          const admin = users.find((u: any) => u.role === 'admin');
 
           if (admin) {
             const res = await api.post('/orders/delivery-estimate', {
@@ -114,7 +115,7 @@ const Cart = () => {
       return;
     }
 
-    const order = await placeOrder();
+    const order = await placeOrder(selectedPayment);
     if (order) {
       toast.success('Orders placed successfully!', {
         description: `Order confirmed via ${selectedPayment.toUpperCase()}`,

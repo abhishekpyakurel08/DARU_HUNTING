@@ -69,7 +69,8 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
   fetchUsers: async () => {
     try {
       const res = await api.get('/admin/users');
-      set({ users: res.data });
+      const data = Array.isArray(res.data) ? res.data : (res.data.users || []);
+      set({ users: data });
     } catch (e) {
       console.error("Failed to fetch users", e);
       set({ users: [] });
@@ -79,7 +80,8 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
   fetchOrders: async () => {
     try {
       const res = await api.get('/admin/orders');
-      set({ orders: res.data });
+      const data = Array.isArray(res.data) ? res.data : (res.data.orders || []);
+      set({ orders: data });
     } catch (e) {
       console.error("Failed to fetch orders", e);
       set({ orders: [] });
@@ -89,7 +91,8 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
   fetchProducts: async () => {
     try {
       const res = await api.get('/admin/products');
-      set({ products: res.data });
+      const data = Array.isArray(res.data) ? res.data : (res.data.products || []);
+      set({ products: data });
     } catch (e) {
       console.error("Failed to fetch products", e);
       set({ products: [] });

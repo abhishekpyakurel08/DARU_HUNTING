@@ -14,7 +14,9 @@ interface ProductCardProps {
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { items, addItem, updateQuantity, removeItem } = useCartStore();
-  const cartItem = items.find((item) => item.product.id === product.id);
+  // Safe ID check handling both id and _id
+  const productId = product.id || product._id;
+  const cartItem = items.find((item) => (item.product.id || item.product._id) === productId);
   const quantity = cartItem?.quantity || 0;
 
   const handleAddToCart = () => {
@@ -30,7 +32,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       className="card-product overflow-hidden group"
     >
       {/* Image */}
-      <Link to={`/product/${product.id}`}>
+      <Link to={`/product/${productId}`}>
         <div className="relative aspect-square overflow-hidden cursor-pointer">
           <img
             src={product.image}
@@ -86,14 +88,14 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
           ) : (
             <div className="flex items-center gap-2 bg-muted rounded-xl p-1">
               <button
-                onClick={() => updateQuantity(product.id, quantity - 1)}
+                onClick={() => productId && updateQuantity(productId, quantity - 1)}
                 className="w-8 h-8 rounded-lg bg-background flex items-center justify-center hover:bg-primary/10 transition-colors"
               >
                 <Minus className="w-4 h-4" />
               </button>
               <span className="w-8 text-center font-semibold">{quantity}</span>
               <button
-                onClick={() => updateQuantity(product.id, quantity + 1)}
+                onClick={() => productId && updateQuantity(productId, quantity + 1)}
                 className="w-8 h-8 rounded-lg bg-background flex items-center justify-center hover:bg-primary/10 transition-colors"
               >
                 <Plus className="w-4 h-4" />

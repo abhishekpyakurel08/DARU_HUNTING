@@ -39,7 +39,8 @@ export default function AdminUsers() {
         setIsHistoryOpen(true);
         try {
             const res = await api.get(`/admin/users/${userId}/orders`);
-            setSelectedUserOrders(res.data);
+            const data = Array.isArray(res.data) ? res.data : (res.data.orders || []);
+            setSelectedUserOrders(data);
         } catch (e) {
             toast.error('Failed to load user history');
             setIsHistoryOpen(false);
@@ -155,12 +156,12 @@ export default function AdminUsers() {
                                 <div key={order._id} className="p-4 bg-muted/30 rounded-2xl border border-border flex items-center justify-between">
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2">
-                                            <span className="font-bold text-sm">#{order._id.slice(-6).toUpperCase()}</span>
+                                            <span className="font-bold text-sm">#{(order._id || 'N/A').slice(-6).toUpperCase()}</span>
                                             <span className={`text-[10px] px-2 py-0.5 rounded-full font-black uppercase ${order.status === 'COMPLETED' ? 'bg-emerald-500/10 text-emerald-500' :
-                                                    order.status === 'CANCELLED' ? 'bg-rose-500/10 text-rose-500' :
-                                                        'bg-primary/10 text-primary'
+                                                order.status === 'CANCELLED' ? 'bg-rose-500/10 text-rose-500' :
+                                                    'bg-primary/10 text-primary'
                                                 }`}>
-                                                {order.status}
+                                                {order.status || 'PENDING'}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-3 text-xs text-muted-foreground">

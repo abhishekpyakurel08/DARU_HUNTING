@@ -46,7 +46,7 @@ export default function Orders() {
                   </div>
                   <div>
                     <h2 className="text-xl font-black text-foreground uppercase tracking-wider">Active Delivery</h2>
-                    <p className="text-primary font-bold">Order #{activeOrder.id.slice(-6).toUpperCase()}</p>
+                    <p className="text-primary font-bold">Order #{(activeOrder.id || 'N/A').slice(-6).toUpperCase()}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-12 w-full md:w-auto px-4 md:px-0">
@@ -54,7 +54,7 @@ export default function Orders() {
                     <p className="text-xs font-black text-muted-foreground uppercase mb-1">Current Status</p>
                     <p className="text-lg font-black text-foreground tracking-tight flex items-center justify-center md:justify-end gap-2">
                       <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                      {activeOrder.status.replace(/_/g, ' ')}
+                      {(activeOrder.status || 'CREATED').replace(/_/g, ' ')}
                     </p>
                   </div>
                 </div>

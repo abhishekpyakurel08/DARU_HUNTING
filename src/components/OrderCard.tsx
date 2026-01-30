@@ -47,7 +47,7 @@ const statusConfig: Record<OrderStatus, { label: string; icon: React.ReactNode; 
 export function OrderCard({ order }: OrderCardProps) {
   const { cancelOrder } = useCartStore();
   const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | undefined>();
-  const status = statusConfig[order.status];
+  const status = statusConfig[order.status] || statusConfig['CREATED'];
   const canCancel = order.status === 'CREATED';
 
   const handleTrack = () => {
@@ -67,7 +67,7 @@ export function OrderCard({ order }: OrderCardProps) {
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="font-bold text-lg text-foreground">Order #{order.id.slice(-6).toUpperCase()}</h3>
+          <h3 className="font-bold text-lg text-foreground">Order #{(order.id || 'N/A').slice(-6).toUpperCase()}</h3>
           <p className="text-sm text-muted-foreground">
             {new Date(order.createdAt).toLocaleDateString('en-US', {
               weekday: 'short',
