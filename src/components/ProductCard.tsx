@@ -35,12 +35,15 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       <Link to={`/product/${productId}`}>
         <div className="relative aspect-square overflow-hidden cursor-pointer">
           <img
-            src={product.image}
+            src={product.image?.startsWith('http') ? product.image : product.image || '/placeholder.svg'}
             alt={product.name}
             loading="lazy"
             width="500"
             height="500"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/placeholder.svg';
+            }}
           />
           <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
             <span className="px-4 py-2 bg-background/90 backdrop-blur-sm rounded-full text-sm font-medium text-foreground flex items-center gap-2">

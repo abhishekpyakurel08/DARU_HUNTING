@@ -131,12 +131,16 @@ export default function AdminOrders() {
               </div>
               <div className="space-y-2">
                 <h4 className="font-semibold text-sm">Items</h4>
-                {selectedOrder.items.map((item: any) => (
-                  <div key={item._id} className="flex justify-between text-sm p-2 bg-muted/50 rounded-lg">
-                    <span>{item.product?.name} x {item.quantity}</span>
-                    <span className="font-bold">Rs {item.price * item.quantity}</span>
-                  </div>
-                ))}
+                {Array.isArray(selectedOrder.items) ? (
+                  selectedOrder.items.map((item: any) => (
+                    <div key={item._id || Math.random()} className="flex justify-between text-sm p-2 bg-muted/50 rounded-lg">
+                      <span>{item.product?.name || 'Unknown Item'} x {item.quantity}</span>
+                      <span className="font-bold">Rs {((item.price || item.product?.price || 0) * item.quantity).toFixed(2)}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No items found.</p>
+                )}
               </div>
               <div className="flex items-center justify-between pt-2 border-t mt-4">
                 <span className="text-muted-foreground text-sm">Delivery Address</span>

@@ -118,25 +118,30 @@ export function OrderCard({ order }: OrderCardProps) {
 
       {/* Items */}
       <div className="space-y-2 mb-4">
-        {order.items.map((item) => {
-          const productId = item.product._id || item.product.id;
-          return (
-            <div key={productId} className="flex items-center gap-3">
-              <img
-                src={item.product.image}
-                alt={item.product.name}
-                className="w-12 h-12 rounded-lg object-cover"
-              />
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-foreground line-clamp-1">{item.product.name}</p>
-                <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+        {Array.isArray(order.items) && order.items.length > 0 ? (
+          order.items.map((item) => {
+            if (!item?.product) return null;
+            const productId = item.product._id || item.product.id;
+            return (
+              <div key={productId} className="flex items-center gap-3">
+                <img
+                  src={item.product.image || '/placeholder.svg'}
+                  alt={item.product.name || 'Product'}
+                  className="w-12 h-12 rounded-lg object-cover"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-foreground line-clamp-1">{item.product.name || 'Unknown Product'}</p>
+                  <p className="text-sm text-muted-foreground">Qty: {item.quantity || 0}</p>
+                </div>
+                <span className="font-semibold text-foreground">
+                  {formatNPR((item.product.price || 0) * (item.quantity || 0))}
+                </span>
               </div>
-              <span className="font-semibold text-foreground">
-                {formatNPR(item.product.price * item.quantity)}
-              </span>
-            </div>
-          );
-        })}
+            );
+          })
+        ) : (
+          <p className="text-sm text-muted-foreground italic">No items details available.</p>
+        )}
       </div>
 
       {/* Delivery Location */}

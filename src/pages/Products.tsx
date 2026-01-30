@@ -26,7 +26,7 @@ const Products = () => {
         price: p.price,
         image: p.image,
         category: p.category,
-        stock: p.stock
+        stock: p.countInStock || p.stock || 0
       }));
     }
   });

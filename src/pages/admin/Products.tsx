@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2, Search, Save } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Save, UserMinus } from 'lucide-react';
 import { useAdminStore } from '@/stores/adminStore';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -59,7 +59,7 @@ export default function AdminProducts() {
       image: product.image,
       description: product.description,
       category: product.category,
-      stock: product.stock.toString(),
+      stock: (product.countInStock || product.stock || 0).toString(),
       approved: product.approved
     });
     setIsDialogOpen(true);
@@ -72,6 +72,7 @@ export default function AdminProducts() {
       ...formData,
       price: parseFloat(formData.price),
       stock: parseInt(formData.stock),
+      countInStock: parseInt(formData.stock), // Ensure backend receives correct field if it requires it
     };
 
     try {
@@ -150,13 +151,23 @@ export default function AdminProducts() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <img
-                        src={product.image}
+                        src={product.image?.startsWith('http') ? product.image : product.image || '/placeholder.svg'}
                         alt={product.name}
                         className="w-12 h-12 rounded-lg object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/placeholder.svg';
+                        }}
                       />
                       <div>
                         <p className="font-medium text-foreground">{product.name}</p>
-                        <p className="text-xs text-muted-foreground uppercase">{product.category}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs text-muted-foreground uppercase">{product.category}</p>
+                          {product.vendor && (
+                            <span className="px-1.5 py-0.5 rounded-md bg-orange-100 text-orange-700 text-[10px] font-bold uppercase border border-orange-200">
+                              Vendor
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -177,6 +188,24 @@ export default function AdminProducts() {
                       <button onClick={() => handleDelete(product._id)} className="p-2 rounded-lg hover:bg-destructive/10 transition-colors">
                         <Trash2 className="w-4 h-4 text-destructive" />
                       </button>
+                      {product.vendor && (
+                        <button
+                          onClick={async () => {
+                            if (confirm('Are you sure you want to remove the vendor from this product? It will become a system product.')) {
+                              try {
+                                await updateProduct(product._id, { vendor: null });
+                                toast.success('Vendor removed from product');
+                              } catch (e) {
+                                toast.error('Failed to remove vendor');
+                              }
+                            }
+                          }}
+                          className="p-2 rounded-lg hover:bg-orange-100 transition-colors"
+                          title="Remove Vendor"
+                        >
+                          <UserMinus className="w-4 h-4 text-orange-600" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

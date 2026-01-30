@@ -69,9 +69,9 @@ export default function Orders() {
                 Order History
               </h3>
               <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
-                {orders.map((order, index) => (
+                {Array.isArray(orders) && orders.map((order, index) => (
                   <motion.div
-                    key={order.id}
+                    key={order.id || index}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
