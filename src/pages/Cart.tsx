@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { CartItem } from '@/stores/cartStore';
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -205,7 +206,7 @@ const Cart = () => {
                   </Button>
                 </div>
 
-                {items.map((item) => (
+                {items.map((item: CartItem) => (
                   <motion.div
                     key={item.product.id}
                     layout
@@ -301,7 +302,7 @@ const Cart = () => {
                 <h3 className="font-semibold text-lg text-center">Pin Your Delivery Address</h3>
                 <LocationPicker
                   selectedLocation={deliveryLocation}
-                  onLocationSelect={(loc) => setDeliveryLocation(loc)}
+                  onLocationSelect={(loc: { address: string, lat: number, lng: number }) => setDeliveryLocation(loc)}
                 />
               </div>
 
@@ -404,7 +405,7 @@ const Cart = () => {
                 <div>
                   <h3 className="font-semibold text-foreground mb-3">Order Items</h3>
                   <div className="space-y-3">
-                    {items.map((item) => (
+                    {items.map((item: CartItem) => (
                       <div key={item.product.id} className="flex items-center gap-3">
                         <img
                           src={item.product.image}

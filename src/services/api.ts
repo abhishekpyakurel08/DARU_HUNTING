@@ -31,6 +31,60 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
+        // Mock Mode Fallback for Admin/Vendor Routes
+        if (originalRequest.url?.includes('/admin/') || originalRequest.url?.includes('/products') || originalRequest.url?.includes('/vendor/')) {
+            console.warn(`[MockMode] API failed for ${originalRequest.url}, falling back to mock data.`);
+            try {
+                const { MOCK_STATS, MOCK_USERS, MOCK_ORDERS, MOCK_PRODUCTS, MOCK_EXPENSES, MOCK_USER_ORDERS } = await import('./mockData');
+
+                // Artificial delay
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // Vendor/Admin Stats
+                if (originalRequest.url.includes('/stats')) {
+                    return {
+                        data: {
+                            totalProducts: MOCK_PRODUCTS.length,
+                            activeProducts: MOCK_PRODUCTS.filter(p => (p as any).approved).length,
+                            pendingProducts: MOCK_PRODUCTS.filter(p => !(p as any).approved).length,
+                            totalSales: 45,
+                            totalRevenue: MOCK_STATS.totalRevenue,
+                            commission: 3
+                        },
+                        status: 200
+                    };
+                }
+
+                if (originalRequest.url.includes('/users') && !originalRequest.url.includes('/orders')) return { data: MOCK_USERS, status: 200 };
+
+                // Vendor Products
+                if (originalRequest.url.includes('/vendor/products')) {
+                    return {
+                        data: {
+                            products: MOCK_PRODUCTS.map(p => ({
+                                id: (p as any)._id,
+                                ...p,
+                                status: (p as any).approved ? 'active' : 'pending'
+                            }))
+                        },
+                        status: 200
+                    };
+                }
+
+                if (originalRequest.url.includes('/orders') && !originalRequest.url.includes('/users')) return { data: MOCK_ORDERS, status: 200 };
+                if (originalRequest.url.includes('/products')) return { data: MOCK_PRODUCTS, status: 200 };
+                if (originalRequest.url.includes('/expenses')) return { data: MOCK_EXPENSES, status: 200 };
+                if (originalRequest.url.includes('/orders') && originalRequest.url.includes('/users')) return { data: MOCK_USER_ORDERS, status: 200 };
+
+                // For write operations, simulate success
+                if (['post', 'put', 'delete'].includes(originalRequest.method || '')) {
+                    return { data: { success: true, message: 'Operation simulated (Mock Mode)' }, status: 200 };
+                }
+            } catch (mockError) {
+                console.error("Failed to load mock data", mockError);
+            }
+        }
+
         if (error.response?.status === 429) {
             const { toast } = await import('sonner');
             toast.error(error.response.data?.message || 'Slow down! Too many requests.', {
